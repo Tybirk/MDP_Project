@@ -5,17 +5,27 @@ Actions = c("Nothing","Incentivize")
 States = c("Satisfied Customer", "Dissatisfied Customer","Former Customer")
 
 NothingTransitionMatrix = matrix(0,nrow = length(States),ncol = length(States))
+#NothingTransitionMatrix[1,] = c(0.7,0.2,0.1) # Satisfied customer transition probabilities
+#NothingTransitionMatrix[2,] = c(0.1,0.2,0.7) # Dissatisfied customer transition probabilities
+#NothingTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilities
+#NothingReward = c(100,100,0)
+
+IncentivizeTransitionMatrix = matrix(0,nrow = length(States),ncol = length(States))
+#IncentivizeTransitionMatrix[1,] = c(0.7,0.2,0.1) # Satisfied customer transition probabilities
+#IncentivizeTransitionMatrix[2,] = c(0.7,0.2,0.1) # Dissatisfied customer transition probabilities
+#IncentivizeTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilities
+#IncentivizeReward = c(50,50,-50)
+
+NothingTransitionMatrix = matrix(0,nrow = length(States),ncol = length(States))
 NothingTransitionMatrix[1,] = c(0.7,0.2,0.1) # Satisfied customer transition probabilities
 NothingTransitionMatrix[2,] = c(0.1,0.2,0.7) # Dissatisfied customer transition probabilities
 NothingTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilities
-
 NothingReward = c(100,100,0)
 
 IncentivizeTransitionMatrix = matrix(0,nrow = length(States),ncol = length(States))
 IncentivizeTransitionMatrix[1,] = c(0.7,0.2,0.1) # Satisfied customer transition probabilities
 IncentivizeTransitionMatrix[2,] = c(0.7,0.2,0.1) # Dissatisfied customer transition probabilities
-IncentivizeTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilities
-
+IncentivizeTransitionMatrix[3,] = c(0.7,0.2,0.1) # Dissatisfied customer transition probabilities
 IncentivizeReward = c(50,50,-50)
 
 TransitionMatrix = list(Nothing = NothingTransitionMatrix, Incentivize = IncentivizeTransitionMatrix)
