@@ -99,41 +99,60 @@ library(highcharter)
 #plot(1:(iterations/plotfrequency),BestAction[,1])
 hchart(BestAction, "scatter")
 
+
+
+
 ## Concurrent SARSA
 epsilon = 0.05
-learningRate = 0.3
+learningRate = 0.30
 discountFactor = 0.9
-iterations = 10000
-agents = 2
+iterations = 100
+agents = 100
 
 Q = matrix(0,ncol = length(States),nrow = length(Actions))
 colnames(Q) = States
 rownames(Q) = Actions
-CurrentStates = sample(3,agents)
-CurrentActions = sample(2,agents)
+CurrentStates = sample(3,agents,replace=TRUE)
+CurrentActions = sample(2,agents,replace=TRUE)
 
-plotfrequency = 100 
+plotfrequency = 1
 BestAction = matrix(0,ncol = length(States),nrow = iterations/plotfrequency)
 colnames(BestAction) = States
 
 for(i in 1:iterations){
-  NextStates = sample(3,agents,prob = TransitionMatrix[[CurrentAction]][CurrentState,])
-  NextActions = rep(0,lengths(agents))
+  NextActions = rep(0,agents)
+  NextStates = rep(0,agents)
   for(a in 1:agents){
-  
-  
+    NextStates[a]= sample(3,1,prob = TransitionMatrix[[CurrentActions[a]]][CurrentStates[a],])
   
   NextActions[a] = which.max(Q[,NextStates[a]])
-  if(runif(1,0,1)<epsilon){
+  if(runif(1,0,1)<epsilon || i == 1){
     NextActions[a] = sample(2,1)
     }
   }
-  Q[CurrentActions,CurrentStates] = Q[CurrentActions,CurrentStates] + 
-    learningRate*(RewardMat[NextStates] + 
-                    discountFactor*Q[NextActions,NextStates] -
-                    Q[CurrentActions,CurrentStates])
+  
+  
+  #for(a in 1:length(CurrentActions)){
+  #    Q[CurrentActions[a],CurrentStates[a]] = Q[CurrentActions[a],CurrentStates[a]] + 
+  #      learningRate*(RewardMat[NextStates[a]] + 
+  #                     discountFactor*Q[NextActions[a],NextStates[a]] -
+  #                      Q[CurrentActions[a],CurrentStates[a]])
+  #
+  #}
+  
+  tempQ = array(0,dim = dim(Q))
+  for(a in 1:agents){
+      tempQ[CurrentActions[a],CurrentStates[a]] = tempQ[CurrentActions[a],CurrentStates[a]] + 
+        learningRate*(RewardMat[NextStates[a],NextActions[a]] + 
+                       discountFactor*Q[NextActions[a],NextStates[a]] -
+                        Q[CurrentActions[a],CurrentStates[a]])
+  
+  }
+  Q = Q+tempQ
+  
   CurrentStates = NextStates
   CurrentActions = NextActions
+  learningRate = learningRate*0.95
   
   if(as.integer(i/plotfrequency)==i/plotfrequency){
     BestAction[i/plotfrequency,] = apply(Q,2,which.max)
