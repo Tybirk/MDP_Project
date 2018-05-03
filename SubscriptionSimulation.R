@@ -7,7 +7,7 @@ States = c("Satisfied Customer", "Dissatisfied Customer","Former Customer")
 NothingTransitionMatrix = matrix(0,nrow = length(States),ncol = length(States))
 NothingTransitionMatrix[1,] = c(0.7,0.2,0.1) # Satisfied customer transition probabilities
 NothingTransitionMatrix[2,] = c(0.1,0.2,0.7) # Dissatisfied customer transition probabilities
-NothingTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilitie
+NothingTransitionMatrix[3,] = c(0.1,0,0.9) # Dissatisfied customer transition probabilities
 
 NothingReward = c(100,100,0)
 
@@ -82,7 +82,7 @@ if(runif(1,0,1)<epsilon){
 }
 
 Q[CurrentAction,CurrentState] = Q[CurrentAction,CurrentState] + 
-                                learningRate*(Reward[[NextAction]][NextState] + 
+                                learningRate*(Reward[[CurrentAction]][CurrentState] + 
                                 discountFactor*Q[NextAction,NextState] -
                                 Q[CurrentAction,CurrentState])
 CurrentState = NextState
@@ -103,10 +103,10 @@ hchart(BestAction, "scatter")
 
 
 ## Concurrent SARSA
-epsilon = 0.05
-learningRate = 0.30
-discountFactor = 0.9
-iterations = 100
+epsilon = 0.4
+learningRate = 0.7
+discountFactor = 0.8
+iterations = 500
 agents = 100
 
 Q = matrix(0,ncol = length(States),nrow = length(Actions))
@@ -115,9 +115,10 @@ rownames(Q) = Actions
 CurrentStates = sample(3,agents,replace=TRUE)
 CurrentActions = sample(2,agents,replace=TRUE)
 
-plotfrequency = 1
+plotfrequency = 10
 BestAction = matrix(0,ncol = length(States),nrow = iterations/plotfrequency)
 colnames(BestAction) = States
+tempQ = array(0,dim = c(length(Actions),length(States),agents))
 
 for(i in 1:iterations){
   NextActions = rep(0,agents)
@@ -140,23 +141,23 @@ for(i in 1:iterations){
   #
   #}
   
-  tempQ = array(0,dim = dim(Q))
   for(a in 1:agents){
-      tempQ[CurrentActions[a],CurrentStates[a]] = tempQ[CurrentActions[a],CurrentStates[a]] + 
-        learningRate*(RewardMat[NextStates[a],NextActions[a]] + 
+      tempQ[CurrentActions[a],CurrentStates[a],a] = Q[CurrentActions[a],CurrentStates[a]] + 
+        learningRate*(RewardMat[CurrentStates[a],CurrentActions[a]] + 
                        discountFactor*Q[NextActions[a],NextStates[a]] -
                         Q[CurrentActions[a],CurrentStates[a]])
   
   }
-  Q = Q+tempQ
+  avgtempQ = apply(tempQ,c(1,2),mean)
+  Q = avgtempQ
   
   CurrentStates = NextStates
   CurrentActions = NextActions
-  learningRate = learningRate*0.95
+  #learningRate = learningRate*0.9999
   
   if(as.integer(i/plotfrequency)==i/plotfrequency){
     BestAction[i/plotfrequency,] = apply(Q,2,which.max)
-     }
+  }
   
 }
 
